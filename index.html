@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#101715">
+  <meta name="description" content="Flugzeug-Wiki mit technischen Daten, deutschen Herstellern und Quellen.">
+  <title>Flugzeug-Wiki — Aircraft Archive</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="loadingScreen" class="loading-screen" role="status" aria-live="polite">
+    <div class="loading-mark">A</div><div class="loading-kicker">AIRCRAFT ARCHIVE</div>
+    <div class="loading-title">Daten werden geladen<span>…</span></div>
+    <div class="loading-track"><span id="loadingProgress"></span></div>
+    <div class="loading-caption"><span>FLUGZEUG-WIKI</span><span id="loadingPercent">0%</span></div>
+  </div>
+  <header class="site-header">
+    <a class="wordmark" href="#top" aria-label="Aircraft Archive Startseite"><span class="wordmark-symbol">A</span><span>AIRCRAFT<span class="wordmark-light"> ARCHIVE</span></span></a>
+    <div class="header-note"><span class="header-dot"></span> UNABHÄNGIGES FLUGZEUG-WIKI <span class="header-sep">/</span> FLUGZEUGE & HERSTELLER</div>
+    <div class="header-actions"><button id="teamButton" class="account-button team-button" type="button" hidden>TEAM</button><button id="accountButton" class="account-button" type="button"><span class="account-dot"></span><span id="accountButtonLabel">ANMELDEN</span></button><a class="header-source" href="#sources">ÜBER DIE DATEN <span>↗</span></a></div>
+  </header>
+  <dialog id="accountDialog" class="account-dialog" aria-labelledby="accountTitle">
+    <div class="account-panel">
+      <button id="accountClose" class="account-close" type="button" aria-label="Schließen">×</button>
+      <div class="eyebrow">AIRCRAFT ARCHIVE · KONTO</div>
+      <h2 id="accountTitle">Willkommen an Bord.</h2>
+      <p id="accountMessage" class="account-message">Für den Zugang zum Flugzeug-Wiki musst du dich anmelden.</p>
+      <div id="providerButtons" class="provider-buttons">
+        <button class="provider-button" data-provider="discord" type="button"><span class="provider-icon discord-icon">◈</span><span>Weiter mit Discord</span><span class="provider-arrow">↗</span></button>
+        <button class="provider-button twitch-coming-soon" data-provider="twitch" type="button" disabled aria-disabled="true"><span class="provider-icon twitch-icon">T</span><span>Weiter mit Twitch</span><span class="coming-soon-label">COMING SOON</span></button>
+      </div>
+      <form id="emailForm" class="email-form">
+        <div id="emailUsernameGroup" class="email-username-group" hidden><label for="emailUsername">NUTZERNAME</label><input id="emailUsername" type="text" autocomplete="nickname" minlength="2" maxlength="32" placeholder="Dein Nutzername" required disabled></div>
+        <label for="emailAddress">E-MAIL-ADRESSE</label><input id="emailAddress" type="email" autocomplete="email" placeholder="name@beispiel.de" required>
+        <label for="emailPassword">PASSWORT</label><input id="emailPassword" type="password" autocomplete="current-password" minlength="6" placeholder="Mindestens 6 Zeichen" required>
+        <button id="emailSubmit" class="email-submit" type="submit">MIT E-MAIL ANMELDEN</button>
+        <button id="emailMode" class="email-mode" type="button">Noch kein Konto? Registrieren</button>
+      </form>
+      <div id="accountUser" class="account-user" hidden><span class="user-avatar" id="userAvatar">A</span><span class="user-details"><b id="userName"></b><small id="userEmail"></small></span><button id="signOutButton" class="signout-button" type="button">ABMELDEN</button></div>
+      <p id="authNotice" class="auth-notice" role="status"></p>
+      <p class="account-privacy">Du kannst Discord oder E-Mail verwenden. Twitch ist bald verfügbar.</p>
+    </div>
+  </dialog>
+  <dialog id="teamDialog" class="account-dialog team-dialog" aria-labelledby="teamTitle">
+    <div class="account-panel"><button id="teamClose" class="account-close" type="button" aria-label="Schließen">×</button>
+      <div class="eyebrow">AIRCRAFT ARCHIVE · PRIVATER BEREICH</div><h2 id="teamTitle">Team-Bereich</h2>
+      <p id="teamStatus" class="account-message" role="status">Lade Teamdaten …</p>
+      <section class="maintenance-card"><div class="work-mode-controls"><b>Website-Status</b><p>Wartung mit optionalem Countdown oder Umbau auf unbestimmte Zeit.</p>
+        <label for="workMode">Modus auswählen</label><select id="workMode" class="category-filter"><option value="off">Normalbetrieb</option><option value="maintenance">Wartung</option><option value="rebuild">Umbau</option></select>
+        <label for="maintenanceHours">Wartungsdauer in Stunden (optional)</label><input id="maintenanceHours" class="maintenance-time-input" type="number" min="1" max="720" step="1" placeholder="z. B. 2 Stunden" disabled><small>Leer lassen für Wartung ohne Countdown. Der Umbau-Modus hat kein Zeitlimit.</small>
+        <button id="saveWorkMode" class="email-submit" type="button">ÄNDERUNGEN SPEICHERN</button>
+      </div></section>
+      <h3 class="team-list-title">Nutzerkonten &amp; IDs</h3><div id="teamUsers" class="team-users"></div>
+      <h3 class="team-list-title">F12-Soft-Bans und F12-Bans</h3><p id="f12Status" class="account-message" role="status">Lade F12-Sperren …</p><div id="f12Users" class="team-users f12-users"></div>
+    </div>
+  </dialog>
+  <div id="maintenanceScreen" class="maintenance-screen" hidden><div class="loading-mark">A</div><div class="eyebrow">AIRCRAFT ARCHIVE</div><h1 id="workScreenTitle">Die Website ist in Wartung</h1><p id="workScreenMessage">Wir sind bald wieder in der Luft. Bitte schau später noch einmal vorbei.</p><p id="maintenanceCountdown" class="maintenance-countdown" hidden></p><p id="siteFunFact" class="site-fun-fact"></p></div>
+  <div id="userBlockScreen" class="maintenance-screen user-block-screen" hidden><div class="loading-mark">A</div><div class="eyebrow">AIRCRAFT ARCHIVE · KONTOSTATUS</div><h1 id="userBlockTitle">Du bist von der Website gesperrt</h1><p id="userBlockMessage">Dieses Konto kann das Flugzeug-Wiki derzeit nicht nutzen.</p><a class="account-block-discord" href="https://discord.gg/yTDGX5rhVP" target="_blank" rel="noopener noreferrer">ZUM DISCORD-SERVER ↗</a></div>
+  <div id="softBanScreen" class="maintenance-screen soft-ban-screen" hidden><div class="loading-mark">A</div><div class="eyebrow">AIRCRAFT ARCHIVE · HINWEIS</div><h1 id="softBanTitle">Soft-Ban aktiviert</h1><p id="softBanMessage">Oh je, du hast F12 gedrückt. Wir hatten die Vermutung, dass du auf interne Daten zugreifen möchtest. Bitte drücke F12 nicht noch einmal.</p><a href="https://discord.gg/yTDGX5rhVP" target="_blank" rel="noopener noreferrer">ZUM DISCORD-SERVER ↗</a><small id="softBanNote">Die Sperre gilt für diesen Browser-Tab.</small><button id="softBanLiftButton" class="soft-ban-lift" type="button" hidden>F12-SOFT-BAN AUFHEBEN</button></div>
+  <main id="top" class="wiki-shell">
+    <aside class="catalog" aria-label="Flugzeugauswahl">
+      <div class="catalog-intro"><div class="eyebrow">DIE FLOTTE</div><div class="catalog-title-row"><h1>Flugzeug<br><em>Wiki</em></h1><div class="count"><strong id="modelCount">100</strong><span>MODELLE</span></div></div><p>100 Flugzeuge aus verschiedenen Ländern und Epochen.</p></div>
+      <label class="field-label" for="aircraftSearch">SUCHEN</label>
+      <div class="search-wrap"><span aria-hidden="true">⌕</span><input id="aircraftSearch" type="search" placeholder="Modell oder Hersteller …" autocomplete="off"></div>
+      <label class="field-label category-label" for="categoryFilter">KATEGORIE</label>
+      <select id="categoryFilter" class="category-filter"><option value="Alle">Alle Kategorien</option><option value="Deutsche Hersteller">Deutsche Hersteller</option><option value="Schmalrumpf">Schmalrumpf</option><option value="Langstrecke">Langstrecke</option><option value="Regional jet">Regionaljets</option><option value="Turboprop">Turboprops</option><option value="Superjumbo">Superjumbo</option></select>
+      <label class="field-label" for="engineFilter">MOTOR / TRIEBWERK</label>
+      <select id="engineFilter" class="category-filter"><option value="Alle">Alle Motoren</option></select>
+      <label class="field-label" for="countryFilter">HERSTELLUNGSLAND</label>
+      <select id="countryFilter" class="category-filter"><option value="Alle">Alle Länder</option></select>
+      <label class="field-label" for="sortFilter">SORTIEREN</label>
+      <select id="sortFilter" class="category-filter"><option value="oldest">Erstflug: älteste zuerst</option><option value="newest">Erstflug: neueste zuerst</option><option value="smallest">Länge: kürzeste zuerst</option><option value="largest">Länge: längste zuerst</option></select>
+      <div class="results-line"><span id="resultCount">100 Flugzeuge</span><span>FLUGZEUGTYP</span></div>
+      <nav id="aircraftList" class="aircraft-list" aria-label="Flugzeugmodelle"></nav>
+      <div class="catalog-foot"><span class="catalog-line"></span> HERSTELLERDATEN, ZUSAMMENGEFASST</div>
+    </aside>
+    <article id="aircraftArticle" class="aircraft-article" aria-live="polite">
+      <div id="articleContent"></div>
+    </article>
+  </main>
+  <footer id="sources" class="site-footer"><span>DATENSTAND: OKTOBER 2026</span><span>REICHWEITEN UND KABINENWERTE SIND KONFIGURATIONSABHÄNGIG</span><span>QUELLEN: HERSTELLER & EASA</span><span>© 2026 AIRCRAFT ARCHIVE · ALLE RECHTE VORBEHALTEN</span><a class="imprint-link" href="impressum.html">IMPRESSUM</a></footer>
+  <small id="siteVersion" class="site-version" aria-label="Version 1.69">V1.69</small>
+  <script src="version.js"></script>
+  <script src="script.js"></script>
+  <script src="auth-config.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="auth.js"></script>
+</body>
+</html>
