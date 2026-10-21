@@ -15,6 +15,7 @@
   const passwordField = document.getElementById('emailPassword');
   const emailSubmit = document.getElementById('emailSubmit');
   const emailMode = document.getElementById('emailMode');
+  const rememberMe = document.getElementById('rememberMe');
   const emailUsernameGroup = document.getElementById('emailUsernameGroup');
   const emailUsername = document.getElementById('emailUsername');
   const teamButton = document.getElementById('teamButton');
@@ -38,6 +39,27 @@
   const softBanLiftButton = document.getElementById('softBanLiftButton');
   const softBanScreen = document.getElementById('softBanScreen');
   const config = window.AIRCRAFT_AUTH_CONFIG || {};
+  const rememberPreferenceKey = 'aircraftArchiveRememberMe';
+  try { rememberMe.checked = localStorage.getItem(rememberPreferenceKey) !== 'false'; } catch (_) { rememberMe.checked = true; }
+  function selectedAuthStorage() { return rememberMe.checked ? window.localStorage : window.sessionStorage; }
+  function moveAuthSession(remember) {
+    try {
+      if (config.supabaseUrl) {
+        const prefix = `sb-${new URL(config.supabaseUrl).hostname.split('.')[0]}-`;
+        const source = remember ? window.sessionStorage : window.localStorage;
+        const target = remember ? window.localStorage : window.sessionStorage;
+        for (const key of Object.keys(source)) {
+          if (key.startsWith(prefix)) { target.setItem(key, source.getItem(key)); source.removeItem(key); }
+        }
+      }
+      localStorage.setItem(rememberPreferenceKey, String(remember));
+    } catch (_) {}
+  }
+  const supabaseAuthStorage = {
+    getItem(key) { try { return selectedAuthStorage().getItem(key); } catch (_) { return null; } },
+    setItem(key, value) { try { selectedAuthStorage().setItem(key, value); } catch (_) {} },
+    removeItem(key) { try { localStorage.removeItem(key); sessionStorage.removeItem(key); } catch (_) {} }
+  };
   let authClient = null;
   let currentUser = null;
   let isAdmin = false;
@@ -70,6 +92,7 @@
   const configured = Boolean(config.supabaseUrl && config.supabasePublishableKey);
   const show = () => { if (!dialog.open) dialog.showModal(); };
   openButton.addEventListener('click', show);
+  rememberMe.addEventListener('change', () => moveAuthSession(rememberMe.checked));
   closeButton.addEventListener('click', () => { if (currentUser) dialog.close(); });
   dialog.addEventListener('click', (event) => { if (event.target === dialog && currentUser) dialog.close(); });
   dialog.addEventListener('cancel', (event) => { if (!currentUser) event.preventDefault(); });
@@ -487,7 +510,10 @@
     promptGuestAfterLoading(); return;
   }
 
-  authClient = window.supabase.createClient(config.supabaseUrl, config.supabasePublishableKey);
+  moveAuthSession(rememberMe.checked);
+  authClient = window.supabase.createClient(config.supabaseUrl, config.supabasePublishableKey, {
+    auth: { storage: supabaseAuthStorage, persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
+  });
   loadMaintenance();
   authClient.auth.getSession().then(({ data, error }) => {
     if (error) notice.textContent = 'Dein Anmeldestatus konnte nicht geladen werden.';

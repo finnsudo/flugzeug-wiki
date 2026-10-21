@@ -30,6 +30,8 @@
         <button class="provider-button" data-provider="discord" type="button"><span class="provider-icon discord-icon">◈</span><span>Weiter mit Discord</span><span class="provider-arrow">↗</span></button>
         <button class="provider-button twitch-coming-soon" data-provider="twitch" type="button" disabled aria-disabled="true"><span class="provider-icon twitch-icon">T</span><span>Weiter mit Twitch</span><span class="coming-soon-label">COMING SOON</span></button>
       </div>
+      <label class="remember-me" for="rememberMe"><input id="rememberMe" type="checkbox" checked><span>Angemeldet bleiben</span></label>
+      <small class="remember-hint">Auf diesem Gerät gespeichert. Auf gemeinsam genutzten Geräten deaktivieren.</small>
       <form id="emailForm" class="email-form">
         <div id="emailUsernameGroup" class="email-username-group" hidden><label for="emailUsername">NUTZERNAME</label><input id="emailUsername" type="text" autocomplete="nickname" minlength="2" maxlength="32" placeholder="Dein Nutzername" required disabled></div>
         <label for="emailAddress">E-MAIL-ADRESSE</label><input id="emailAddress" type="email" autocomplete="email" placeholder="name@beispiel.de" required>
@@ -39,7 +41,7 @@
       </form>
       <div id="accountUser" class="account-user" hidden><span class="user-avatar" id="userAvatar">A</span><span class="user-details"><b id="userName"></b><small id="userEmail"></small></span><button id="signOutButton" class="signout-button" type="button">ABMELDEN</button></div>
       <p id="authNotice" class="auth-notice" role="status"></p>
-      <p class="account-privacy">Du kannst Discord oder E-Mail verwenden. Twitch ist bald verfügbar.</p>
+      <div class="account-privacy"><b>Datenschutz bei der Anmeldung</b><p>Für dein Konto werden E-Mail bzw. Discord-Profilname, eine interne Konto-ID, Anmeldeart und Kontostatus verarbeitet. Supabase stellt Anmeldung und Kontospeicherung bereit; Discord erhält bei Discord-Login die Anmeldeanfrage.</p><a href="datenschutz.html" target="_blank" rel="noopener noreferrer">Datenschutzhinweise lesen ↗</a><span> · Discord oder E-Mail verfügbar; Twitch kommt später.</span></div>
     </div>
   </dialog>
   <dialog id="teamDialog" class="account-dialog team-dialog" aria-labelledby="teamTitle">
@@ -79,8 +81,8 @@
       <div id="articleContent"></div>
     </article>
   </main>
-  <footer id="sources" class="site-footer"><span>DATENSTAND: OKTOBER 2026</span><span>REICHWEITEN UND KABINENWERTE SIND KONFIGURATIONSABHÄNGIG</span><span>QUELLEN: HERSTELLER & EASA</span><span>© 2026 AIRCRAFT ARCHIVE · ALLE RECHTE VORBEHALTEN</span><a class="imprint-link" href="impressum.html">IMPRESSUM</a></footer>
-  <small id="siteVersion" class="site-version" aria-label="Version 1.69">V1.69</small>
+  <footer id="sources" class="site-footer"><span>DATENSTAND: OKTOBER 2026</span><span>REICHWEITEN UND KABINENWERTE SIND KONFIGURATIONSABHÄNGIG</span><span>QUELLEN: HERSTELLER & EASA</span><span>© 2026 AIRCRAFT ARCHIVE · ALLE RECHTE VORBEHALTEN</span><a class="imprint-link" href="datenschutz.html">DATENSCHUTZ</a><a class="imprint-link" href="impressum.html">IMPRESSUM</a></footer>
+  <small id="siteVersion" class="site-version" aria-label="Version 1.70">V1.70</small>
   <script src="version.js"></script>
   <script src="script.js"></script>
   <script src="auth-config.js"></script>

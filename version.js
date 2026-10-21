@@ -1,5 +1,5 @@
 // Update this value whenever a new website update is prepared.
-window.AIRCRAFT_WIKI_VERSION = '1.69';
+window.AIRCRAFT_WIKI_VERSION = '1.70';
 
 const versionBadge = document.getElementById('siteVersion');
 if (versionBadge) {
