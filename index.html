@@ -54,13 +54,17 @@
         <a class="provider-button" href="https://discord.gg/dXbEpEN8rh" target="_blank" rel="noopener noreferrer"><span class="provider-icon discord-icon">◈</span><span>Novium auf Discord</span><span class="provider-arrow">↗</span></a>
         <a class="provider-button" href="https://suite.novium.world" target="_blank" rel="noopener noreferrer"><span class="provider-icon">N</span><span>Novium Website</span><span class="provider-arrow">↗</span></a>
       </div>
-      <p class="novium-sponsor-footnote">Sponsor-Hinweis vorbereitet, noch nicht öffentlich freigeben, bevor die Partnerschaft bestätigt wurde.</p>
+      <small id="noviumSponsorCountdown" class="novium-sponsor-countdown" aria-live="polite">Schließen in 5 Sekunden möglich.</small>
     </div>
   </dialog>
   <dialog id="teamDialog" class="account-dialog team-dialog" aria-labelledby="teamTitle">
     <div class="account-panel"><button id="teamClose" class="account-close" type="button" aria-label="Schließen">×</button>
       <div class="eyebrow">AIRCRAFT ARCHIVE · PRIVATER BEREICH</div><h2 id="teamTitle">Team-Bereich</h2>
       <p id="teamStatus" class="account-message" role="status">Lade Teamdaten …</p>
+      <section class="maintenance-card"><div class="work-mode-controls"><b>Werbung senden</b><p>Wähle einen Sponsor aus und zeige die Werbeeinblendung allen Besuchern außer Team-Mitgliedern.</p>
+        <label for="sponsorSelect">Sponsor auswählen</label><select id="sponsorSelect" class="category-filter"><option value="novium">Novium</option></select>
+        <button id="sendSponsorAd" class="email-submit" type="button">WERBUNG SENDEN</button><small id="sponsorSendStatus" role="status"></small>
+      </div></section>
       <section class="maintenance-card"><div class="work-mode-controls"><b>Website-Status</b><p>Wartung mit optionalem Countdown oder Umbau auf unbestimmte Zeit.</p>
         <label for="workMode">Modus auswählen</label><select id="workMode" class="category-filter"><option value="off">Normalbetrieb</option><option value="maintenance">Wartung</option><option value="rebuild">Umbau</option></select>
         <label for="maintenanceHours">Wartungsdauer in Stunden (optional)</label><input id="maintenanceHours" class="maintenance-time-input" type="number" min="1" max="720" step="1" placeholder="z. B. 2 Stunden" disabled><small>Leer lassen für Wartung ohne Countdown. Der Umbau-Modus hat kein Zeitlimit.</small>

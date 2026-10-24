@@ -28,6 +28,9 @@
   const workMode = document.getElementById('workMode');
   const maintenanceHoursInput = document.getElementById('maintenanceHours');
   const saveWorkMode = document.getElementById('saveWorkMode');
+  const sponsorSelect = document.getElementById('sponsorSelect');
+  const sendSponsorAd = document.getElementById('sendSponsorAd');
+  const sponsorSendStatus = document.getElementById('sponsorSendStatus');
   const maintenanceScreen = document.getElementById('maintenanceScreen');
   const workScreenTitle = document.getElementById('workScreenTitle');
   const workScreenMessage = document.getElementById('workScreenMessage');
@@ -66,6 +69,7 @@
   let emailAction = 'signin';
   let autoOpenTimer = null;
   let settingsChannel = null;
+  let sponsorBroadcastChannel = null;
   let siteMode = 'off';
   let maintenanceUntil = null;
   let countdownTimer = null;
@@ -97,6 +101,7 @@
   dialog.addEventListener('click', (event) => { if (event.target === dialog && currentUser) dialog.close(); });
   dialog.addEventListener('cancel', (event) => { if (!currentUser) event.preventDefault(); });
   teamButton.addEventListener('click', openTeam);
+  sendSponsorAd?.addEventListener('click', sendSponsorAnnouncement);
   workMode.addEventListener('change', () => {
     maintenanceHoursInput.disabled = workMode.value !== 'maintenance';
     if (maintenanceHoursInput.disabled) maintenanceHoursInput.value = '';
@@ -426,6 +431,48 @@
     await loadTeamData();
   }
 
+  async function sendSponsorAnnouncement() {
+    if (!isAdmin || !currentUser || !authClient || !sponsorSelect || !sendSponsorAd) return;
+    if (sponsorSelect.value !== 'novium') return;
+    sendSponsorAd.disabled = true;
+    if (sponsorSendStatus) sponsorSendStatus.textContent = 'Sende die Werbeeinblendung …';
+    try {
+      const channel = authClient.channel('aircraft-archive-sponsor-announcements', { config: { broadcast: { self: false } } });
+      await new Promise((resolve, reject) => {
+        let settled = false;
+        const finish = (fn, value) => { if (!settled) { settled = true; fn(value); } };
+        channel.subscribe(status => {
+          if (status === 'SUBSCRIBED') {
+            channel.send({ type: 'broadcast', event: 'show-sponsor', payload: { sponsor: 'novium', sentAt: Date.now() } })
+              .then(result => result?.error ? finish(reject, result.error) : finish(resolve));
+          } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
+            finish(reject, new Error('Realtime-Verbindung nicht verfügbar.'));
+          }
+        });
+        window.setTimeout(() => finish(reject, new Error('Zeitüberschreitung bei der Realtime-Verbindung.')), 8000);
+      });
+      if (sponsorSendStatus) sponsorSendStatus.textContent = 'Novium-Werbung wurde an verbundene Besucher gesendet. Team-Mitglieder sehen sie nicht.';
+    } catch (error) {
+      if (sponsorSendStatus) sponsorSendStatus.textContent = 'Konnte nicht senden. Prüfe die Supabase-Realtime-Verbindung und versuche es erneut.';
+    } finally {
+      sendSponsorAd.disabled = false;
+    }
+  }
+
+  function listenForSponsorAnnouncements() {
+    if (!authClient || sponsorBroadcastChannel) return;
+    sponsorBroadcastChannel = authClient.channel('aircraft-archive-sponsor-announcements');
+    sponsorBroadcastChannel.on('broadcast', { event: 'show-sponsor' }, async ({ payload }) => {
+      if (payload?.sponsor !== 'novium') return;
+      // Admins and anyone who can see the private Team panel must never see the ad.
+      try {
+        const { data, error } = await authClient.rpc('is_site_admin');
+        if (!error && data === true) return;
+      } catch (_) {}
+      window.showNoviumSponsorDialog?.({ force: true });
+    }).subscribe();
+  }
+
   saveWorkMode.addEventListener('click', async () => {
     if (!isAdmin || !authClient) return;
     saveWorkMode.disabled = true;
@@ -480,9 +527,12 @@
     }
     applyLoginGate();
     checkAdmin();
-    // Sponsor window is a draft integration. It appears after a user becomes signed in.
+    // After login, show the sponsor window to ordinary users only, never to team admins.
     if (user && identityChanged) {
-      window.setTimeout(() => window.showNoviumSponsorDialog?.(), 250);
+      window.setTimeout(async () => {
+        await checkAdmin();
+        if (!isAdmin) window.showNoviumSponsorDialog?.();
+      }, 250);
     }
     let recordedF12Presses = 0;
     try { recordedF12Presses = Number(sessionStorage.getItem('aircraftWikiF12Presses')) || 0; } catch (_) {}
@@ -518,6 +568,7 @@
   authClient = window.supabase.createClient(config.supabaseUrl, config.supabasePublishableKey, {
     auth: { storage: supabaseAuthStorage, persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
   });
+  listenForSponsorAnnouncements();
   loadMaintenance();
   authClient.auth.getSession().then(({ data, error }) => {
     if (error) notice.textContent = 'Dein Anmeldestatus konnte nicht geladen werden.';
