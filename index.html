@@ -3,108 +3,28 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex,follow">
   <meta name="theme-color" content="#101715">
-  <meta name="description" content="Flugzeug-Wiki mit technischen Daten, deutschen Herstellern und Quellen.">
-  <title>Flugzeug-Wiki — Aircraft Archive</title>
-  <link rel="stylesheet" href="style.css">
+  <meta http-equiv="refresh" content="15;url=https://aircraft-arive.novium.link/">
+  <title>Link veraltet | Flugzeug-Wiki</title>
+  <style>
+    :root{color-scheme:dark;--bg:#0b1110;--panel:#131d1a;--line:#2a3933;--text:#edf5f0;--muted:#a6b8af;--accent:#8de0b1}
+    *{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;padding:24px;background:radial-gradient(ellipse at top,#20372e 0%,var(--bg) 58%);font-family:system-ui,-apple-system,Segoe UI,sans-serif;color:var(--text)}
+    main{width:min(100%,650px);padding:clamp(26px,6vw,48px);border:1px solid var(--line);border-radius:24px;background:rgba(19,29,26,.96);box-shadow:0 24px 80px #0007}
+    .mark{width:52px;height:52px;display:grid;place-items:center;border:1px solid #456b57;border-radius:15px;color:var(--accent);font-size:25px;font-weight:800;margin-bottom:28px}
+    .eyebrow{font-size:12px;letter-spacing:.18em;color:var(--accent);font-weight:700}h1{font-size:clamp(30px,7vw,46px);line-height:1.08;margin:12px 0 16px}p{color:var(--muted);line-height:1.7;margin:0 0 18px}.url{display:block;overflow-wrap:anywhere;color:var(--accent);font-weight:700;margin:8px 0 24px}
+    a.button{display:inline-flex;align-items:center;justify-content:center;gap:10px;padding:14px 18px;border-radius:12px;background:var(--accent);color:#102017;font-weight:800;text-decoration:none}a.button:hover{filter:brightness(1.07)}.small{font-size:13px;margin-top:20px;margin-bottom:0}
+  </style>
 </head>
 <body>
-  <div id="loadingScreen" class="loading-screen" role="status" aria-live="polite">
-    <div class="loading-mark">A</div><div class="loading-kicker">AIRCRAFT ARCHIVE</div>
-    <div class="loading-title">Daten werden geladen<span>…</span></div>
-    <div class="loading-track"><span id="loadingProgress"></span></div>
-    <div class="loading-caption"><span>FLUGZEUG-WIKI</span><span id="loadingPercent">0%</span></div>
-  </div>
-  <header class="site-header">
-    <a class="wordmark" href="#top" aria-label="Aircraft Archive Startseite"><span class="wordmark-symbol">A</span><span>AIRCRAFT<span class="wordmark-light"> ARCHIVE</span></span></a>
-    <div class="header-note"><span class="header-dot"></span> UNABHÄNGIGES FLUGZEUG-WIKI <span class="header-sep">/</span> FLUGZEUGE & HERSTELLER</div>
-    <div class="header-actions"><button id="teamButton" class="account-button team-button" type="button" hidden>TEAM</button><button id="accountButton" class="account-button" type="button"><span class="account-dot"></span><span id="accountButtonLabel">ANMELDEN</span></button><a class="header-source" href="#sources">ÜBER DIE DATEN <span>↗</span></a></div>
-  </header>
-  <dialog id="accountDialog" class="account-dialog" aria-labelledby="accountTitle">
-    <div class="account-panel">
-      <button id="accountClose" class="account-close" type="button" aria-label="Schließen">×</button>
-      <div class="eyebrow">AIRCRAFT ARCHIVE · KONTO</div>
-      <h2 id="accountTitle">Willkommen an Bord.</h2>
-      <p id="accountMessage" class="account-message">Für den Zugang zum Flugzeug-Wiki musst du dich anmelden.</p>
-      <div id="providerButtons" class="provider-buttons">
-        <button class="provider-button" data-provider="discord" type="button"><span class="provider-icon discord-icon">◈</span><span>Weiter mit Discord</span><span class="provider-arrow">↗</span></button>
-        <button class="provider-button twitch-coming-soon" data-provider="twitch" type="button" disabled aria-disabled="true"><span class="provider-icon twitch-icon">T</span><span>Weiter mit Twitch</span><span class="coming-soon-label">COMING SOON</span></button>
-      </div>
-      <label class="remember-me" for="rememberMe"><input id="rememberMe" type="checkbox" checked><span>Angemeldet bleiben</span></label>
-      <small class="remember-hint">Auf diesem Gerät gespeichert. Auf gemeinsam genutzten Geräten deaktivieren.</small>
-      <form id="emailForm" class="email-form">
-        <div id="emailUsernameGroup" class="email-username-group" hidden><label for="emailUsername">NUTZERNAME</label><input id="emailUsername" type="text" autocomplete="nickname" minlength="2" maxlength="32" placeholder="Dein Nutzername" required disabled></div>
-        <label for="emailAddress">E-MAIL-ADRESSE</label><input id="emailAddress" type="email" autocomplete="email" placeholder="name@beispiel.de" required>
-        <label for="emailPassword">PASSWORT</label><input id="emailPassword" type="password" autocomplete="current-password" minlength="6" placeholder="Mindestens 6 Zeichen" required>
-        <button id="emailSubmit" class="email-submit" type="submit">MIT E-MAIL ANMELDEN</button>
-        <button id="emailMode" class="email-mode" type="button">Noch kein Konto? Registrieren</button>
-      </form>
-      <div id="accountUser" class="account-user" hidden><span class="user-avatar" id="userAvatar">A</span><span class="user-details"><b id="userName"></b><small id="userEmail"></small></span><button id="signOutButton" class="signout-button" type="button">ABMELDEN</button></div>
-      <p id="authNotice" class="auth-notice" role="status"></p>
-      <div class="account-privacy"><b>Datenschutz bei der Anmeldung</b><p>Für dein Konto werden E-Mail bzw. Discord-Profilname, eine interne Konto-ID, Anmeldeart und Kontostatus verarbeitet. Supabase stellt Anmeldung und Kontospeicherung bereit; Discord erhält bei Discord-Login die Anmeldeanfrage.</p><a href="datenschutz.html" target="_blank" rel="noopener noreferrer">Datenschutzhinweise lesen ↗</a><span> · Discord oder E-Mail verfügbar; Twitch kommt später.</span></div>
-    </div>
-  </dialog>
-  <dialog id="noviumSponsorDialog" class="account-dialog novium-sponsor-dialog" aria-labelledby="noviumSponsorTitle">
-    <div class="account-panel">
-      <button id="noviumSponsorClose" class="account-close" type="button" aria-label="Schließen">×</button>
-      <div class="eyebrow">AIRCRAFT ARCHIVE · PARTNER</div>
-      <h2 id="noviumSponsorTitle">Schau doch bei unseren Sponsoren vorbei!</h2>
-      <p class="account-message">Unterstütze unsere Partner und besuche Novium.</p>
-      <div class="novium-sponsor-actions">
-        <a class="provider-button" href="https://discord.gg/dXbEpEN8rh" target="_blank" rel="noopener noreferrer"><span class="provider-icon discord-icon">◈</span><span>Novium auf Discord</span><span class="provider-arrow">↗</span></a>
-        <a class="provider-button" href="https://suite.novium.world" target="_blank" rel="noopener noreferrer"><span class="provider-icon">N</span><span>Novium Website</span><span class="provider-arrow">↗</span></a>
-      </div>
-      <small id="noviumSponsorCountdown" class="novium-sponsor-countdown" aria-live="polite">Schließen in 5 Sekunden möglich.</small>
-    </div>
-  </dialog>
-  <dialog id="teamDialog" class="account-dialog team-dialog" aria-labelledby="teamTitle">
-    <div class="account-panel"><button id="teamClose" class="account-close" type="button" aria-label="Schließen">×</button>
-      <div class="eyebrow">AIRCRAFT ARCHIVE · PRIVATER BEREICH</div><h2 id="teamTitle">Team-Bereich</h2>
-      <p id="teamStatus" class="account-message" role="status">Lade Teamdaten …</p>
-      <section class="maintenance-card"><div class="work-mode-controls"><b>Werbung senden</b><p>Wähle einen Sponsor aus und zeige die Werbeeinblendung allen Besuchern außer Team-Mitgliedern.</p>
-        <label for="sponsorSelect">Sponsor auswählen</label><select id="sponsorSelect" class="category-filter"><option value="novium">Novium</option></select>
-        <button id="sendSponsorAd" class="email-submit" type="button">WERBUNG SENDEN</button><small id="sponsorSendStatus" role="status"></small>
-      </div></section>
-      <section class="maintenance-card"><div class="work-mode-controls"><b>Website-Status</b><p>Wartung mit optionalem Countdown oder Umbau auf unbestimmte Zeit.</p>
-        <label for="workMode">Modus auswählen</label><select id="workMode" class="category-filter"><option value="off">Normalbetrieb</option><option value="maintenance">Wartung</option><option value="rebuild">Umbau</option></select>
-        <label for="maintenanceHours">Wartungsdauer in Stunden (optional)</label><input id="maintenanceHours" class="maintenance-time-input" type="number" min="1" max="720" step="1" placeholder="z. B. 2 Stunden" disabled><small>Leer lassen für Wartung ohne Countdown. Der Umbau-Modus hat kein Zeitlimit.</small>
-        <button id="saveWorkMode" class="email-submit" type="button">ÄNDERUNGEN SPEICHERN</button>
-      </div></section>
-      <h3 class="team-list-title">Nutzerkonten &amp; IDs</h3><div id="teamUsers" class="team-users"></div>
-      <h3 class="team-list-title">F12-Soft-Bans und F12-Bans</h3><p id="f12Status" class="account-message" role="status">Lade F12-Sperren …</p><div id="f12Users" class="team-users f12-users"></div>
-    </div>
-  </dialog>
-  <div id="maintenanceScreen" class="maintenance-screen" hidden><div class="loading-mark">A</div><div class="eyebrow">AIRCRAFT ARCHIVE</div><h1 id="workScreenTitle">Die Website ist in Wartung</h1><p id="workScreenMessage">Wir sind bald wieder in der Luft. Bitte schau später noch einmal vorbei.</p><p id="maintenanceCountdown" class="maintenance-countdown" hidden></p><p id="siteFunFact" class="site-fun-fact"></p></div>
-  <div id="userBlockScreen" class="maintenance-screen user-block-screen" hidden><div class="loading-mark">A</div><div class="eyebrow">AIRCRAFT ARCHIVE · KONTOSTATUS</div><h1 id="userBlockTitle">Du bist von der Website gesperrt</h1><p id="userBlockMessage">Dieses Konto kann das Flugzeug-Wiki derzeit nicht nutzen.</p><a class="account-block-discord" href="https://discord.gg/yTDGX5rhVP" target="_blank" rel="noopener noreferrer">ZUM DISCORD-SERVER ↗</a></div>
-  <div id="softBanScreen" class="maintenance-screen soft-ban-screen" hidden><div class="loading-mark">A</div><div class="eyebrow">AIRCRAFT ARCHIVE · HINWEIS</div><h1 id="softBanTitle">Soft-Ban aktiviert</h1><p id="softBanMessage">Oh je, du hast F12 gedrückt. Wir hatten die Vermutung, dass du auf interne Daten zugreifen möchtest. Bitte drücke F12 nicht noch einmal.</p><a href="https://discord.gg/yTDGX5rhVP" target="_blank" rel="noopener noreferrer">ZUM DISCORD-SERVER ↗</a><small id="softBanNote">Die Sperre gilt für diesen Browser-Tab.</small><button id="softBanLiftButton" class="soft-ban-lift" type="button" hidden>F12-SOFT-BAN AUFHEBEN</button></div>
-  <main id="top" class="wiki-shell">
-    <aside class="catalog" aria-label="Flugzeugauswahl">
-      <div class="catalog-intro"><div class="eyebrow">DIE FLOTTE</div><div class="catalog-title-row"><h1>Flugzeug<br><em>Wiki</em></h1><div class="count"><strong id="modelCount">100</strong><span>MODELLE</span></div></div><p>100 Flugzeuge aus verschiedenen Ländern und Epochen.</p></div>
-      <label class="field-label" for="aircraftSearch">SUCHEN</label>
-      <div class="search-wrap"><span aria-hidden="true">⌕</span><input id="aircraftSearch" type="search" placeholder="Modell oder Hersteller …" autocomplete="off"></div>
-      <label class="field-label category-label" for="categoryFilter">KATEGORIE</label>
-      <select id="categoryFilter" class="category-filter"><option value="Alle">Alle Kategorien</option><option value="Deutsche Hersteller">Deutsche Hersteller</option><option value="Schmalrumpf">Schmalrumpf</option><option value="Langstrecke">Langstrecke</option><option value="Regional jet">Regionaljets</option><option value="Turboprop">Turboprops</option><option value="Superjumbo">Superjumbo</option></select>
-      <label class="field-label" for="engineFilter">MOTOR / TRIEBWERK</label>
-      <select id="engineFilter" class="category-filter"><option value="Alle">Alle Motoren</option></select>
-      <label class="field-label" for="countryFilter">HERSTELLUNGSLAND</label>
-      <select id="countryFilter" class="category-filter"><option value="Alle">Alle Länder</option></select>
-      <label class="field-label" for="sortFilter">SORTIEREN</label>
-      <select id="sortFilter" class="category-filter"><option value="oldest">Erstflug: älteste zuerst</option><option value="newest">Erstflug: neueste zuerst</option><option value="smallest">Länge: kürzeste zuerst</option><option value="largest">Länge: längste zuerst</option></select>
-      <div class="results-line"><span id="resultCount">100 Flugzeuge</span><span>FLUGZEUGTYP</span></div>
-      <nav id="aircraftList" class="aircraft-list" aria-label="Flugzeugmodelle"></nav>
-      <div class="catalog-foot"><span class="catalog-line"></span> HERSTELLERDATEN, ZUSAMMENGEFASST</div>
-    </aside>
-    <article id="aircraftArticle" class="aircraft-article" aria-live="polite">
-      <div id="articleContent"></div>
-    </article>
+  <main>
+    <div class="mark" aria-hidden="true">A</div>
+    <div class="eyebrow">AIRCRAFT ARCHIVE · FLUGZEUG-WIKI</div>
+    <h1>Der Link ist veraltet.</h1>
+    <p>Das Flugzeug-Wiki ist umgezogen. Du findest die aktuelle Website ab sofort unter dieser Adresse:</p>
+    <a class="url" href="https://aircraft-arive.novium.link/">https://aircraft-arive.novium.link</a>
+    <a class="button" href="https://aircraft-arive.novium.link/">Zur neuen Website <span aria-hidden="true">↗</span></a>
+    <p class="small">Du wirst in 15 Sekunden automatisch weitergeleitet. Falls das nicht klappt, nutze bitte den Link oben.</p>
   </main>
-  <footer id="sources" class="site-footer"><span>DATENSTAND: OKTOBER 2026</span><span>REICHWEITEN UND KABINENWERTE SIND KONFIGURATIONSABHÄNGIG</span><span>QUELLEN: HERSTELLER & EASA</span><span>© 2026 AIRCRAFT ARCHIVE · ALLE RECHTE VORBEHALTEN</span><a class="novium-sponsor-link" href="https://suite.novium.world" target="_blank" rel="noopener noreferrer">Sponsored by Novium ↗</a><a class="imprint-link" href="datenschutz.html">DATENSCHUTZ</a><a class="imprint-link" href="impressum.html">IMPRESSUM</a></footer>
-  <small id="siteVersion" class="site-version" aria-label="Version 1.70">V1.70</small>
-  <script src="version.js"></script>
-  <script src="script.js"></script>
-  <script src="auth-config.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="auth.js"></script>
-  <script src="sponsors.js"></script>
 </body>
 </html>
