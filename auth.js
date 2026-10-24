@@ -101,7 +101,6 @@
   dialog.addEventListener('click', (event) => { if (event.target === dialog && currentUser) dialog.close(); });
   dialog.addEventListener('cancel', (event) => { if (!currentUser) event.preventDefault(); });
   teamButton.addEventListener('click', openTeam);
-  sendSponsorAd?.addEventListener('click', sendSponsorAnnouncement);
   workMode.addEventListener('change', () => {
     maintenanceHoursInput.disabled = workMode.value !== 'maintenance';
     if (maintenanceHoursInput.disabled) maintenanceHoursInput.value = '';
@@ -432,32 +431,89 @@
   }
 
   async function sendSponsorAnnouncement() {
-    if (!isAdmin || !currentUser || !authClient || !sponsorSelect || !sendSponsorAd) return;
-    if (sponsorSelect.value !== 'novium') return;
+    if (!sendSponsorAd) {
+      console.error('[Aircraft Archive] Werbe-Button #sendSponsorAd wurde nicht gefunden.');
+      return;
+    }
+    if (sponsorSendStatus) {
+      sponsorSendStatus.hidden = false;
+      sponsorSendStatus.style.display = 'block';
+      sponsorSendStatus.textContent = 'Werbe-Button erkannt. Prüfe Team-Berechtigung …';
+    }
+    if (!isAdmin || !currentUser || !authClient) {
+      if (sponsorSendStatus) sponsorSendStatus.textContent = 'Du musst mit einem berechtigten Team-Konto angemeldet sein.';
+      return;
+    }
+    if (sponsorSelect?.value !== 'novium') {
+      if (sponsorSendStatus) sponsorSendStatus.textContent = 'Bitte wähle zuerst einen Sponsor aus.';
+      return;
+    }
+
     sendSponsorAd.disabled = true;
-    if (sponsorSendStatus) sponsorSendStatus.textContent = 'Sende die Werbeeinblendung …';
+    if (sponsorSendStatus) sponsorSendStatus.textContent = 'Verbinde mit dem Werbekanal …';
+    let channel = null;
+    let timeoutId = null;
     try {
-      const channel = authClient.channel('aircraft-archive-sponsor-announcements', { config: { broadcast: { self: false } } });
+      channel = authClient.channel('aircraft-archive-sponsor-announcements', {
+        config: { broadcast: { self: false } }
+      });
+
       await new Promise((resolve, reject) => {
         let settled = false;
-        const finish = (fn, value) => { if (!settled) { settled = true; fn(value); } };
-        channel.subscribe(status => {
+        const finish = (fn, value) => {
+          if (settled) return;
+          settled = true;
+          if (timeoutId) window.clearTimeout(timeoutId);
+          fn(value);
+        };
+
+        timeoutId = window.setTimeout(() => {
+          finish(reject, new Error('Zeitüberschreitung: Supabase Realtime antwortet nicht.'));
+        }, 10000);
+
+        channel.subscribe(async status => {
           if (status === 'SUBSCRIBED') {
-            channel.send({ type: 'broadcast', event: 'show-sponsor', payload: { sponsor: 'novium', sentAt: Date.now() } })
-              .then(result => result?.error ? finish(reject, result.error) : finish(resolve));
+            if (sponsorSendStatus) sponsorSendStatus.textContent = 'Sende die Werbung an verbundene Besucher …';
+            try {
+              const result = await channel.send({
+                type: 'broadcast',
+                event: 'show-sponsor',
+                payload: { sponsor: 'novium', sentAt: Date.now() }
+              });
+              if (result === 'ok') finish(resolve, result);
+              else finish(reject, new Error(`Supabase hat die Werbung nicht bestätigt (${String(result)}).`));
+            } catch (error) {
+              finish(reject, error);
+            }
           } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT' || status === 'CLOSED') {
-            finish(reject, new Error('Realtime-Verbindung nicht verfügbar.'));
+            finish(reject, new Error(`Realtime-Kanalstatus: ${status}`));
           }
         });
-        window.setTimeout(() => finish(reject, new Error('Zeitüberschreitung bei der Realtime-Verbindung.')), 8000);
       });
-      if (sponsorSendStatus) sponsorSendStatus.textContent = 'Novium-Werbung wurde an verbundene Besucher gesendet. Team-Mitglieder sehen sie nicht.';
+
+      if (sponsorSendStatus) sponsorSendStatus.textContent = 'Novium-Werbung wurde gesendet. Verbundene Besucher ohne Team-Berechtigung sehen das Fenster.';
     } catch (error) {
-      if (sponsorSendStatus) sponsorSendStatus.textContent = 'Konnte nicht senden. Prüfe die Supabase-Realtime-Verbindung und versuche es erneut.';
+      console.error('[Aircraft Archive] Sponsor-Werbung konnte nicht gesendet werden:', error);
+      if (sponsorSendStatus) sponsorSendStatus.textContent = 'Senden fehlgeschlagen. Bitte prüfe die Internetverbindung und ob Supabase Realtime für dieses Projekt funktioniert.';
     } finally {
+      if (timeoutId) window.clearTimeout(timeoutId);
+      if (channel && authClient) {
+        try { await authClient.removeChannel(channel); } catch (_) {}
+      }
       sendSponsorAd.disabled = false;
     }
   }
+
+  // Capture the click explicitly so other UI handlers cannot swallow it.
+  // The status message is updated immediately, making failures visible to the admin.
+  if (sendSponsorAd) {
+    sendSponsorAd.addEventListener('click', (event) => {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      void sendSponsorAnnouncement();
+    }, true);
+  }
+  window.sendNoviumSponsorAnnouncement = sendSponsorAnnouncement;
 
   function listenForSponsorAnnouncements() {
     if (!authClient || sponsorBroadcastChannel) return;
@@ -465,10 +521,15 @@
     sponsorBroadcastChannel.on('broadcast', { event: 'show-sponsor' }, async ({ payload }) => {
       if (payload?.sponsor !== 'novium') return;
       // Admins and anyone who can see the private Team panel must never see the ad.
-      try {
-        const { data, error } = await authClient.rpc('is_site_admin');
-        if (!error && data === true) return;
-      } catch (_) {}
+      // For signed-in users, fail closed if the admin check cannot be completed.
+      if (currentUser) {
+        try {
+          const { data, error } = await authClient.rpc('is_site_admin');
+          if (error || data === true) return;
+        } catch (_) {
+          return;
+        }
+      }
       window.showNoviumSponsorDialog?.({ force: true });
     }).subscribe();
   }
