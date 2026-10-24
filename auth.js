@@ -480,6 +480,10 @@
     }
     applyLoginGate();
     checkAdmin();
+    // Sponsor window is a draft integration. It appears after a user becomes signed in.
+    if (user && identityChanged) {
+      window.setTimeout(() => window.showNoviumSponsorDialog?.(), 250);
+    }
     let recordedF12Presses = 0;
     try { recordedF12Presses = Number(sessionStorage.getItem('aircraftWikiF12Presses')) || 0; } catch (_) {}
     if (currentUser && (secondF12BanPending || recordedF12Presses >= 2)) { secondF12BanPending = false; void applySecondF12Ban(); }

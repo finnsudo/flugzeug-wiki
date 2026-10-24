@@ -44,6 +44,19 @@
       <div class="account-privacy"><b>Datenschutz bei der Anmeldung</b><p>Für dein Konto werden E-Mail bzw. Discord-Profilname, eine interne Konto-ID, Anmeldeart und Kontostatus verarbeitet. Supabase stellt Anmeldung und Kontospeicherung bereit; Discord erhält bei Discord-Login die Anmeldeanfrage.</p><a href="datenschutz.html" target="_blank" rel="noopener noreferrer">Datenschutzhinweise lesen ↗</a><span> · Discord oder E-Mail verfügbar; Twitch kommt später.</span></div>
     </div>
   </dialog>
+  <dialog id="noviumSponsorDialog" class="account-dialog novium-sponsor-dialog" aria-labelledby="noviumSponsorTitle">
+    <div class="account-panel">
+      <button id="noviumSponsorClose" class="account-close" type="button" aria-label="Schließen">×</button>
+      <div class="eyebrow">AIRCRAFT ARCHIVE · PARTNER</div>
+      <h2 id="noviumSponsorTitle">Schau doch bei unseren Sponsoren vorbei!</h2>
+      <p class="account-message">Unterstütze unsere Partner und besuche Novium.</p>
+      <div class="novium-sponsor-actions">
+        <a class="provider-button" href="https://discord.gg/dXbEpEN8rh" target="_blank" rel="noopener noreferrer"><span class="provider-icon discord-icon">◈</span><span>Novium auf Discord</span><span class="provider-arrow">↗</span></a>
+        <a class="provider-button" href="https://suite.novium.world" target="_blank" rel="noopener noreferrer"><span class="provider-icon">N</span><span>Novium Website</span><span class="provider-arrow">↗</span></a>
+      </div>
+      <p class="novium-sponsor-footnote">Sponsor-Hinweis vorbereitet, noch nicht öffentlich freigeben, bevor die Partnerschaft bestätigt wurde.</p>
+    </div>
+  </dialog>
   <dialog id="teamDialog" class="account-dialog team-dialog" aria-labelledby="teamTitle">
     <div class="account-panel"><button id="teamClose" class="account-close" type="button" aria-label="Schließen">×</button>
       <div class="eyebrow">AIRCRAFT ARCHIVE · PRIVATER BEREICH</div><h2 id="teamTitle">Team-Bereich</h2>
@@ -81,12 +94,13 @@
       <div id="articleContent"></div>
     </article>
   </main>
-  <footer id="sources" class="site-footer"><span>DATENSTAND: OKTOBER 2026</span><span>REICHWEITEN UND KABINENWERTE SIND KONFIGURATIONSABHÄNGIG</span><span>QUELLEN: HERSTELLER & EASA</span><span>© 2026 AIRCRAFT ARCHIVE · ALLE RECHTE VORBEHALTEN</span><a class="imprint-link" href="datenschutz.html">DATENSCHUTZ</a><a class="imprint-link" href="impressum.html">IMPRESSUM</a></footer>
+  <footer id="sources" class="site-footer"><span>DATENSTAND: OKTOBER 2026</span><span>REICHWEITEN UND KABINENWERTE SIND KONFIGURATIONSABHÄNGIG</span><span>QUELLEN: HERSTELLER & EASA</span><span>© 2026 AIRCRAFT ARCHIVE · ALLE RECHTE VORBEHALTEN</span><a class="novium-sponsor-link" href="https://suite.novium.world" target="_blank" rel="noopener noreferrer">Sponsored by Novium ↗</a><a class="imprint-link" href="datenschutz.html">DATENSCHUTZ</a><a class="imprint-link" href="impressum.html">IMPRESSUM</a></footer>
   <small id="siteVersion" class="site-version" aria-label="Version 1.70">V1.70</small>
   <script src="version.js"></script>
   <script src="script.js"></script>
   <script src="auth-config.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="auth.js"></script>
+  <script src="sponsors.js"></script>
 </body>
 </html>
